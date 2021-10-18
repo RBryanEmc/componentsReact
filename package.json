@@ -1,0 +1,23 @@
+{
+  "name": "componentsReact",
+  "version": "0.1.0",
+  "description": "Componentes comunes",
+  "main": "build/index.js",
+  "repository": "https://github.com/RBryanEmc/componentsReact.git",
+  "author": "Bryan Chalan",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^17.0.2"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-decorators-legacy": "^1.3.5",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1"
+  },
+  "scripts": {
+   "build": "babel src -d build",
+   "prepare": "yarn run build"
+  }
+}
