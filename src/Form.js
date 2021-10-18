@@ -40,6 +40,8 @@ class FormState {
 
     @observable currentActionImage = '';
 
+    @observable errorMessage = '';
+
     @action.bound
     updateField(path, field, value, type, forceValidation = false) {
         if (!this.loading) {
@@ -222,6 +224,7 @@ class FormState {
 
     @action.bound
     async save() {
+        this.errorMessage = '';
         await this.saveRegister();
         this.changed = false;
      };
@@ -348,7 +351,8 @@ class FormState {
     async doActionInternal(rowPath, action) {
 
         
-        const payload = { item: this.objectTree.get(this.rootEntity), rowPath: rowPath };
+        //20/05/2021 JMG const payload = { item: this.objectTree.get(this.rootEntity), rowPath: rowPath };
+        const payload = { item: this.objectTree.get(this.rootEntity), context: this.objectTree.get(rowPath)};
 
         const response = await fetch(this.controller + '/' + action, {
             method: 'POST',
@@ -383,7 +387,10 @@ class FormState {
 
         const data = await response.json();
 
-        this.item = data;
+        //03/05/2021 this.item = data;
+        this.item = data.item;
+        this.errorMessage = data.strError;
+
         this.registerRootEntity();
         this.procesarPendingUpdates();
     }
@@ -498,6 +505,7 @@ class Form extends Component {
         this.controller = controller;
         this.path = entity;
 
+        
         this.formState = new FormState();
         this.formState.rootEntity = entity;
         this.formState.enabled = enabled;
@@ -650,6 +658,8 @@ class Form extends Component {
 
                 </div>
             </div> : <Fragment />;
+        
+            let errorMessage = this.formState.errorMessage != '' ? <div className="d-flex mb-3 justify-content-center my-auto"><div className="mr-5 text-center alert alert-primary"><p>{this.formState.errorMessage}</p></div></div>:<Fragment/>
 
           let content = this.formState.loading || this.formState.notFound
             ? this.formState.loading ? <p><em>Loading...</em></p> : <p><em>Not found</em></p>
@@ -662,13 +672,16 @@ class Form extends Component {
                   </Dialog>
 
                 
-                  <Provider formState={this.formState} path={this.path} entityArrayEnabled={this.formState.enabled} watchId={this.watchId} ownerForm={this}>
+                  <Provider formState={this.formState} path={this.path} entityArrayEnabled={this.formState.enabled} watchId={this.watchId} ownerForm={this} parentPath={this.path}>
                              
                       <div className="rellenar" >  
                          {this.props.children}
                       </div>  
+                      {errorMessage}
                       {buttons}
-                         </Provider>
+
+
+                  </Provider>
                      
                 
               </div>
